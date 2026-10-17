@@ -1,0 +1,15 @@
+{
+  "name": "aula06-atualizacoes",
+  "version": "1.0.0",
+  "description": "Relatório de atualizações de dependências - Aula 06 de ISW032 (Fatec Zona Leste)",
+  "private": true,
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test",
+    "auditar": "npm audit --audit-level=high"
+  },
+  "dependencies": {
+    "lodash": "~4.17.15",
+    "semver": "^7.3.5"
+  }
+}

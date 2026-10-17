@@ -1,0 +1,22 @@
+# ============================================================
+# dependabot.yml - configura o robô Dependabot, do próprio GitHub
+# ============================================================
+# O Dependabot vigia as dependências e abre Pull Requests sozinho
+# quando existe versão nova (ou correção de segurança).
+
+# Versão do formato deste arquivo (sempre 2).
+version: 2
+
+updates:
+  # Vigia as bibliotecas do projeto (as que ficam no package.json).
+  - package-ecosystem: "npm"
+    directory: "/"            # onde está o package.json (a raiz do repositório)
+    schedule:
+      interval: "weekly"      # confere uma vez por semana
+
+  # Vigia também as Actions usadas nos workflows (actions/checkout etc.).
+  # Elas são dependências do pipeline, e já foram alvo de ataque real.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

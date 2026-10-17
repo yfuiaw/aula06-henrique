@@ -1,0 +1,52 @@
+# ============================================================
+# ci.yml - o pipeline (robô) que vigia as dependências deste projeto
+# ============================================================
+
+# Nome que aparece na aba Actions do GitHub - só para humanos lerem, o robô ignora.
+name: CI - Dependências
+
+# Quando o robô acorda:
+#   push na main        -> a cada envio de commits para a branch principal
+#   pull_request        -> a cada Pull Request aberto ou atualizado
+#   workflow_dispatch   -> manualmente, pelo botão "Run workflow" da aba Actions
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Permissões do robô: só LER o repositório (princípio do menor privilégio:
+# se alguém conseguir invadir o pipeline, o estrago possível é menor).
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    # Roda numa máquina Linux temporária, criada do zero a cada execução.
+    runs-on: ubuntu-latest
+    steps:
+      # Baixa uma cópia do repositório para dentro da máquina (sem isso o robô não teria os arquivos).
+      # "uses" = usa uma ação pronta, escrita por outra pessoa. Ela também é uma DEPENDÊNCIA do projeto!
+      - name: Baixa uma cópia do repositório
+        uses: actions/checkout@v7
+
+      # Instala o Node.js (versão 22) na máquina, para podermos rodar o npm.
+      - name: Instala o Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # Estágio 1 - BUILD: instala EXATAMENTE as versões travadas no package-lock.json.
+      # Se o package.json e o package-lock.json estiverem fora de sincronia, o npm ci falha aqui.
+      - name: Estágio 1 - Instalar dependências (npm ci)
+        run: npm ci
+
+      # Estágio 2 - TEST: roda os testes automatizados do projeto (pasta test/).
+      - name: Estágio 2 - Testes automatizados
+        run: npm test
+
+      # Estágio 3 - SEGURANÇA: consulta a base de falhas conhecidas.
+      # --audit-level=high -> só falha se achar vulnerabilidade de gravidade alta ou crítica.
+      # Se achar, o comando devolve exit code 1 e o check fica vermelho.
+      - name: Estágio 3 - Auditoria de vulnerabilidades (npm audit)
+        run: npm audit --audit-level=high
